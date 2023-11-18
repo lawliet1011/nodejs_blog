@@ -1,5 +1,8 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+
+
 <div class="mt-4">
-    <h3>My courses</h3>
+    <h3>Deleted courses</h3>
 
     <table class="table mt-4">
         <thead>
@@ -13,25 +16,27 @@
         </thead>
         <tbody>
             {{#each courses}}
+                {{#if deleted}}
             <tr>
                 <th scope="row">{{sum @index 1}}</th>
                 <td>{{this.name}}</td>
                 <td>Level</td>
                 <td>{{this.createdAt}}</td>
                 <td>
-                    <a href="/courses/{{this._id}}/edit" class="btn btn-primary">Update</a>
+                    <a href="" class="btn btn-primary btn-restore" data-bs-id="{{this._id}}" onclick="event.preventDefault()">Restore</a>
                     <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-id="{{this._id}}" data-bs-target="#delete-course-modal">Delete</a>
                 </td>
             </tr>
-
+                {{/if}}
+                        
             {{else}}
+                
             <tr>
               <td colspan="5" class="text-center">
-                You dont have any courses.
-                <a href="/courses/create">Create a course</a>
+                You dont have any deleted courses.
+                <a href="/user/stored/courses">Go to courses</a>
               </td>
             </tr>
-
             {{/each}}
         </tbody>
     </table>
@@ -58,11 +63,16 @@
 
 {{!-- Delete hidden form --}}
 <form name="delete-course-form" method="post"></form>
+<form name="restore-course-form" method="post"></form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
   var courseId;
   var deleteForm = document.forms['delete-course-form']
+  var restoreForm = document.forms['restore-course-form']
   var deleteCourseModal = document.getElementById('delete-course-modal')
+  var restoreBtn = $(".btn-restore")
 
   deleteCourseModal.addEventListener('show.bs.modal', function (event) {
       // Button that triggered the modal
@@ -74,7 +84,16 @@
   var btnDeleteCourse = document.querySelector('#btn-delete-course')
   
   btnDeleteCourse.onclick = function(){
-    deleteForm.action = '/courses/' + courseId + '?_method=DELETE'
+    deleteForm.action = '/courses/' + courseId + '/force?_method=DELETE'
     deleteForm.submit()
   }
+
+  restoreBtn.click(function (e){
+    e.preventDefault()
+    
+    var courseId = $(e.target).attr('data-bs-id')
+    restoreForm.action = '/courses/' + courseId + '/restore?_method=PATCH'
+    restoreForm.submit()
+    
+  })
 </script>

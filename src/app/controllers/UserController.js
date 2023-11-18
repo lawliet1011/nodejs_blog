@@ -11,6 +11,16 @@ class UserController {
       )
       .catch(next)
   }
+
+  trashCourses(req, res, next) {
+    Course.findDeleted({})
+      .then((courses) =>
+        res.render('user/trash-courses', {
+          courses: mutipleMongooseToObject(courses),
+        }),
+      )
+      .catch(next)
+  }
 }
 
 module.exports = new UserController()
